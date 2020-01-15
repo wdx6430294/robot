@@ -1,0 +1,90 @@
+*** Settings ***
+Library           Selenium2Library
+Library           D:/lib/Cleanbrowser.py
+Library           D:/lib/commonData.py
+
+*** Test Cases ***
+变量
+    login
+    click element    css=.name
+    click element    xpath=/html/body/div/div/menu/ul/li/ul/li[1]/a/span[2]
+    click element    xpath=/html/body/div/div/menu/ul/li/ul/li[1]/ul/li[1]/a/span
+    sleep    2
+    ${checkVariableDetail}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr[1]/td[2]/div
+    should not be empty    ${checkVariableDetail}
+    #新建变量_底层
+    click element    xpath=/html/body/div[1]/div/div[2]/div[1]/div/button[1]
+    ${VariableName}    Set Variable    test
+    sleep    2
+    ${test_VariableName}    Random Data    test_VariableName
+    input text    xpath=//*[@id="varCreate"]/dl[1]/dd/input    ${test_VariableName}
+    ${test_VariableComent}    Random Data    描述
+    input text    xpath=//*[@id="varCreate"]/dl[2]/dd/input    ${test_VariableComent}
+    ${test_VariableClassify}    Random Data    分类
+    input text    xpath=//*[@id="varCreate"]/dl[3]/dd/input    ${test_VariableClassify}
+    ${test_VariableNum}    Evaluate    random.randint(1,100)     random
+    input text    xpath=//*[@id="varCreate"]/dl[4]/dd/input    ${test_VariableNum}
+    click Element    xpath=//*[@id="String"]    #选择数据类型
+    Click Element    xpath=/html/body/div/div/div[3]/div/div[3]/button[1]
+    sleep    1
+    input text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[1]/span[2]/input    ${test_VariableName}
+    Click Element    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[1]/button[1]
+    ${check_VariableName}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[5]/div
+    ${check_VariableComent}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[6]
+    ${check_VariableClassify}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[4]/div
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableName}    ${test_VariableName}
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableComent}    ${test_VariableComent}
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableClassify}    ${test_VariableClassify}
+    #修改变量_底层
+    sleep    2
+    Execute Javascript    document.getElementsByClassName('cell_operate')[0].style.display='block'
+    Click Element    xpath=/html/body/div/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[10]/div/div[2]/a
+    sleep    2
+    ${test_VariableComent}    Random Data    描述
+    ${test_VariableClassify}    Random Data    分类
+    ${test_VariableNum}    Evaluate    random.randint(1,100)     random
+    input text    xpath=/html/body/div/div/div[3]/div/div[2]/div[2]/dl[2]/dd/input    ${test_VariableComent}
+    input text    xpath=//*[@id="varCreate"]/dl[3]/dd/input    ${test_VariableClassify}
+    input text    xpath=//*[@id="varCreate"]/dl[4]/dd/input    ${test_VariableNum}
+    Click Element    xpath=/html/body/div/div/div[3]/div/div[3]/button[1]
+    sleep    1
+    input text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[1]/span[2]/input    ${test_VariableName}
+    Click Element    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[1]/button[1]
+    ${check_VariableName}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[5]/div
+    ${check_VariableComent}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[6]
+    ${check_VariableClassify}    get text    xpath=/html/body/div[1]/div/div[2]/div[2]/div/div[2]/div/div[3]/table/tbody/tr/td[4]/div
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableName}    ${test_VariableName}
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableComent}    ${test_VariableComent}
+    Run Keyword And Continue On Failure    Should Be Equal    ${check_VariableClassify}    ${test_VariableClassify}
+    #查看引用
+    #删除变量
+    #导入变量
+    #下载变量
+
+*** Keywords ***
+login
+    Cleanbrowser    firefox.exe    geckodriver.exe
+    Open Browser    http://166.188.20.69:8080/rulengine/html/auth/login.html
+    input text    name=username    han@suanhua.org
+    input text    name=password    wh121212
+    click button    xpath=//*[@id="body"]/div/div[2]/input
+    Sleep    2
+    ${msg}    Get Text    xpath=//*[@id="body"]/div/div/div/div[1]
+    log    ${msg}
+    Should Be Equal    ${msg}    选择规则工程
+    ${msg1}    Get Text    xpath=//*[@id="body"]/div/div/div/div[2]/dl[5]/dd
+    log    ${msg1}
+    Should Be Equal    ${msg1}    测试工程123
+    Click Image    xpath=//*[@id="body"]/div/div/div/div[2]/dl[5]/dt[1]/img
+    log    123123123
+    Sleep    2
+    ${msg2}    Get Text    css=.projectName
+    log    ---------------------
+    log    ${msg2}
+    Run Keyword And Continue On Failure    Should Be Equal    ${msg2}    测试工程123
+
+logout
+    click element    xpath=/html/body/div[1]/div/header/span/a
+    sleep    2
+    ${checkLogout}    Get Text    xpath=/html/body/div/div/div[2]/div
+    Should Be Equal    ${checkLogout}    算话决策引擎服务平台

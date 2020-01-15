@@ -1,0 +1,43 @@
+*** Settings ***
+Library           RequestsLibrary
+Library           json
+Library           DatabaseLibrary
+Library           D:/connect_oracle.py
+Library           Collections
+Library           D:/lib/readExcel.py
+Library           D:/lib/sendHttpRequest.py
+Library           D:/lib/commonData.py
+
+*** Test Cases ***
+Test_AFP3010
+    ${host}    set variable    166.188.20.102:8080
+    ${path}    set variable    testdata/test.xlsx
+    ${sheetName}    set variable    AFP3010
+    ${caseNo}    set variable    1
+    @{testdata}    create list    []
+    @{testdata}    get test data    ${host}    ${path}    ${sheetName}    ${caseNo}
+    log Many    @{testdata}
+    ${url}    set variable    @{testdata}[0]
+    ${Headers}    set variable    @{testdata}[1]
+    ${method}    set variable    @{testdata}[2]
+    ${caseNum}    set variable    @{testdata}[8]
+    : FOR    ${caseNo}    IN RANGE    1    ${caseNum+1}
+    \    @{testdata}    get test data    ${host}    ${path}    ${sheetName}    ${caseNo}
+    \    ${caseName}    set variable    @{testdata}[4]
+    \    ${Body}    set variable    @{testdata}[5]
+    \    ${expectedCode}    set variable    @{testdata}[6]
+    \    ${expectedResult}    set variable    @{testdata}[7]
+    \    ${temp}    Modify App Date    ${Body}
+    \    ${requestBody}    Modify App Num    ${temp}
+    \    ${response_code}    ${content}    Send HttpRequest    ${url}    ${requestBody}    ${Headers}
+    \    ...    ${method}
+    \    log    ${caseNo}
+    \    log    ${caseNum}
+    \    Run Keyword And Continue On Failure    should be equal    ${response_code}    200
+    \    Run Keyword And Continue On Failure    should not be empty    ${content}
+    \    Run Keyword And Continue On Failure    should contain    ${content}    "RET_CODE":"00"
+    \    Run Keyword And Continue On Failure    should be equal    ${content}    ${expectedResult}
+    \    ${caseNo}    set variable    ${caseNo+1}
+    \    log    iterations
+    \    log    ${caseNo-1}
+    log    finish
